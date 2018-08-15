@@ -20,8 +20,7 @@ class Thread extends Model
         });
 
         static::deleting(function ($thread) {
-            Reply::query()->where('thread_id',$thread->id)->delete();
-//            $thread->replies()->delete();
+            $thread->replies->each->delete();
         });
     }
 
@@ -32,9 +31,9 @@ class Thread extends Model
 
     public function replies()
     {
-        return $this->hasMany(Reply::class)
-            ->withCount('favorites')
-            ->with('owner');
+        return $this->hasMany(Reply::class);
+//            ->withCount('favorites')
+//            ->with('owner');
     }
 
     public function creator()
