@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Thread extends Model
 {
+    use RecordsActivity;
+
     protected $guarded = []; // 意味所有属性均可更新，后期会修复此安全隐患
     protected $with = ['creator'];
 
@@ -19,6 +21,7 @@ class Thread extends Model
 
         static::deleting(function ($thread) {
             Reply::query()->where('thread_id',$thread->id)->delete();
+//            $thread->replies()->delete();
         });
     }
 
