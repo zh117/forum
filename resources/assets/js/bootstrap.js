@@ -55,6 +55,14 @@ if (token) {
 // });
 window.Vue = require('vue');
 
+Vue.prototype.authorize = function (hander) {
+    // if Admin,just return true
+
+    let user = window.App.user;
+
+    return user ? hander(user) : false;
+};
+
 window.events = new Vue();
 
 window.flash = function (message) {

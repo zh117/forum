@@ -15,7 +15,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        Carbon::setLocale('zh');
+//        Carbon::setLocale('zh');
 
         \View::composer('*',function ($view){
             $channels = \Cache::rememberForever('channels',function (){
