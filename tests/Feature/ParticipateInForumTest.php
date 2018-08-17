@@ -29,12 +29,14 @@ class ParticipateInForumTest extends TestCase
 
         // When the user adds a reply to the thread
         $reply = make('App\Reply');
-
         $this->post($thread->path() .'/replies',$reply->toArray());
 
         // Then their reply should be visible on the page
-        $this->get($thread->path())
-            ->assertSee($reply->body);
+//        $this->get($thread->path())
+//            ->assertSee($reply->body);
+
+        $this->assertDatabaseHas('replies',['body' => $reply->body]);
+        $this->assertEquals(1,$thread->fresh()->replies_count);
     }
 
     /** @test */
@@ -74,6 +76,7 @@ class ParticipateInForumTest extends TestCase
         $this->delete("/replies/{$reply->id}")->assertStatus(302);
 
         $this->assertDatabaseMissing('replies',['id' => $reply->id]);
+        $this->assertEquals(0,$reply->thread->fresh()->replies_count);
     }
 
     /** @test */
