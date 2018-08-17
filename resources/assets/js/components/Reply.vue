@@ -8,7 +8,7 @@
                     </a> said {{ data.created_at }}...
                 </h5>
 
-                <div v-if="signIn">
+                <div v-if="signedIn">
                     <favorite :reply="data"></favorite>
                 </div>
             </div>
@@ -51,8 +51,8 @@
         },
 
         computed: {
-            signIn() {
-                return window.App.signIn;
+            signedIn() {
+                return window.App.signedIn;
             },
 
             canUpdate() {
