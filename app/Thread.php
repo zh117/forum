@@ -9,7 +9,8 @@ class Thread extends Model
     use RecordsActivity;
 
     protected $guarded = []; // 意味所有属性均可更新，后期会修复此安全隐患
-    protected $with = ['creator'];
+    protected $with = ['creator','channel'];
+    protected $appends = ['isSubscribedTo'];
 
     protected static function boot()
     {
@@ -69,5 +70,12 @@ class Thread extends Model
     public function subscriptions()
     {
         return $this->hasMany(ThreadSubscription::class);
+    }
+
+    public function getIsSubscribedToAttribute()
+    {
+        return $this->subscriptions()
+            ->where('user_id',auth()->id())
+            ->exists();
     }
 }

@@ -38,3 +38,4 @@ Route::get('/profiles/{user}','ProfilesController@show');
 Route::get('/profiles/{user}','ProfilesController@show')->name('profile');
 
 Route::post('/threads/{channel}/{thread}/subscriptions','ThreadSubscriptionsController@store')->middleware('auth');
+Route::delete('/threads/{channel}/{thread}/subscriptions','ThreadSubscriptionsController@destroy')->middleware('auth');
