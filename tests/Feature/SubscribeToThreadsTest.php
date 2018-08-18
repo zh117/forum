@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Reply;
+use App\ThreadSubscription;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 
@@ -13,34 +15,21 @@ class SubscribeToThreadsTest extends TestCase
     public function a_user_can_subscribe_to_threads()
     {
         $this->signIn();
-
-        // Given we have a thread
+        // Given we have a thread...
         $thread = create('App\Thread');
-
-        // And the user subscribes to the thread
+        // And the user subscribes to the thread...
         $this->post($thread->path() . '/subscriptions');
 
-        // Then,each time a new reply is left...
-        $thread->addReply([
-            'user_id' => auth()->id(),
-            'body' => 'Some reply here'
-        ]);
-
-        // A notification should be prepared for the user.
-        $this->assertCount(1,auth()->user()->notifications);
+        $this->assertCount(1, $thread->fresh()->subscriptions);
     }
 
     /** @test */
     public function a_user_can_unsubscribe_from_threads()
     {
         $this->signIn();
-
-        // Given we have a thread
         $thread = create('App\Thread');
-
-        // And the user unsubscribes from the thread
+        $thread->subscribe();
         $this->delete($thread->path() . '/subscriptions');
-
-        $this->assertCount(0,$thread->subscriptions);
+        $this->assertCount(0, $thread->subscriptions);
     }
 }
