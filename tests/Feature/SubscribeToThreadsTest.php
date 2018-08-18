@@ -2,8 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Reply;
-use App\ThreadSubscription;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 
