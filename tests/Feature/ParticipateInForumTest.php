@@ -47,8 +47,9 @@ class ParticipateInForumTest extends TestCase
         $thread = create('App\Thread');
         $reply = make('App\Reply',['body' => null]);
 
-        $this->post($thread->path() . '/replies',$reply->toArray())
-            ->assertSessionHasErrors('body');
+        $response =$this->post($thread->path() . '/replies',$reply->toArray())
+//            ->assertSessionHasErrors('error');
+        ->assertStatus(422);
     }
 
     /** @test */
@@ -117,8 +118,7 @@ class ParticipateInForumTest extends TestCase
             'body' => 'something forbidden'
         ]);
 
-        $this->expectException(\Exception::class);
-
-        $this->post($thread->path() . '/replies',$reply->toArray());
+        $this->post($thread->path() . '/replies',$reply->toArray())
+            ->assertStatus(422);
     }
 }

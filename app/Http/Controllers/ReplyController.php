@@ -42,7 +42,7 @@ class ReplyController extends Controller
     public function store($channelId,Thread $thread)
     {
         try{
-            $this->validateReply();
+            $this->validate(request(),['body' => 'required|spamfree']);
 
             $reply = $thread->addReply([
                 'body' => request('body'),
@@ -91,7 +91,7 @@ class ReplyController extends Controller
         $this->authorize('update',$reply);
 
         try{
-            $this->validateReply();
+            $this->validate(request(),['body' => 'required|spamfree']);
 
             $reply->update(request(['body']));
         }catch (\Exception $e){
