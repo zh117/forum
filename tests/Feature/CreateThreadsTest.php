@@ -46,6 +46,7 @@ class CreateThreadsTest extends TestCase
     {
         $this->publishThread(['title' => null])
             ->assertSessionHasErrors('title');
+//        ->assertStatus(422);
     }
 
     /** @test */
@@ -53,6 +54,7 @@ class CreateThreadsTest extends TestCase
     {
         $this->publishThread(['body' => null])
             ->assertSessionHasErrors('body');
+//            ->assertStatus(422);
     }
 
     /** @test */
@@ -62,9 +64,10 @@ class CreateThreadsTest extends TestCase
 
         $this->publishThread(['channel_id' => null])
             ->assertSessionHasErrors('channel_id');
-
+//            ->assertStatus(422);
         $this->publishThread(['channel_id' => 999])  // channle_id 为 999，是一个不存在的 Channel
         ->assertSessionHasErrors('channel_id');
+//        ->assertStatus(422);
     }
 
     /** @test */
