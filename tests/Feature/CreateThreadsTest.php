@@ -3,11 +3,8 @@
 namespace Tests\Feature;
 
 use App\Activity;
-use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Tests\TestCase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-
+use Illuminate\Foundation\Testing\DatabaseMigrations;
 class CreateThreadsTest extends TestCase
 {
     use DatabaseMigrations;
@@ -18,32 +15,37 @@ class CreateThreadsTest extends TestCase
         $this->withExceptionHandling();
 
         $this->get('/threads/create')
-            ->assertRedirect('/login');
+            ->assertRedirect(route('login')); // 应用路由命名
 
-        $this->post('/threads')
-            ->assertRedirect('/login');
+        $this->post(route('threads')) // 应用路由命名
+        ->assertRedirect(route('login')); // 应用路由命名
     }
 
+    // 修改测试命名，更加辨识度
     /** @test */
-    public function authenticated_users_must_first_confirm_their_email_address_before_creating_threads()
+    public function new_users_must_first_confirm_their_email_address_before_creating_threads()
     {
-        $this->publishThread()
+        // 调用 unconfirmed，生成未认证用户
+        $user = factory('App\User')->states('unconfirmed')->create();
+
+        $this->signIn($user);
+
+        $thread = make('App\Thread');
+
+        $this->post(route('threads'),$thread->toArray())
             ->assertRedirect('/threads')
             ->assertSessionHas('flash','You must first confirm your email address.');
     }
 
+    // 修改测试命名，更加辨识度
     /** @test */
-    public function an_authenticated_user_can_create_new_forum_threads()
+    public function a_user_can_create_new_forum_threads()
     {
-        // Given we have a signed in user
-        $this->signIn();  // 已登录用户
+        $this->signIn();
 
-        // When we hit the endpoint to cteate a new thread
         $thread = make('App\Thread');
-        $response = $this->post('/threads',$thread->toArray());
+        $response = $this->post(route('threads'),$thread->toArray());// 应用路由命名
 
-        // Then,when we visit the thread
-        // We should see the new thread
         $this->get($response->headers->get('Location'))
             ->assertSee($thread->title)
             ->assertSee($thread->body);
@@ -54,7 +56,6 @@ class CreateThreadsTest extends TestCase
     {
         $this->publishThread(['title' => null])
             ->assertSessionHasErrors('title');
-//        ->assertStatus(422);
     }
 
     /** @test */
@@ -62,7 +63,6 @@ class CreateThreadsTest extends TestCase
     {
         $this->publishThread(['body' => null])
             ->assertSessionHasErrors('body');
-//            ->assertStatus(422);
     }
 
     /** @test */
@@ -72,22 +72,9 @@ class CreateThreadsTest extends TestCase
 
         $this->publishThread(['channel_id' => null])
             ->assertSessionHasErrors('channel_id');
-//            ->assertStatus(422);
+
         $this->publishThread(['channel_id' => 999])  // channle_id 为 999，是一个不存在的 Channel
         ->assertSessionHasErrors('channel_id');
-//        ->assertStatus(422);
-    }
-
-    /** @test */
-    public function guests_cannot_delete_threads()
-    {
-        $this->withExceptionHandling();
-
-        $thread = create('App\Thread');
-
-        $response =  $this->delete($thread->path());
-
-        $response->assertRedirect('/login');
     }
 
     /** @test */
@@ -97,7 +84,7 @@ class CreateThreadsTest extends TestCase
 
         $thread = create('App\Thread');
 
-        $this->delete($thread->path())->assertRedirect('/login');
+        $this->delete($thread->path())->assertRedirect(route('login')); // 应用路由命名
 
         $this->signIn();
         $this->delete($thread->path())->assertStatus(403);
@@ -127,6 +114,6 @@ class CreateThreadsTest extends TestCase
 
         $thread = make('App\Thread',$overrides);
 
-        return $this->post('/threads',$thread->toArray());
+        return $this->post(route('threads'),$thread->toArray()); // 应用路由命名
     }
 }
