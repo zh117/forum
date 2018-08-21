@@ -22,6 +22,12 @@ class Thread extends Model
         static::deleting(function ($thread) {
             $thread->replies->each->delete();
         });
+
+        static::created(function ($thread) {
+            $thread->update([
+                'slug' => $thread->title
+            ]);
+        });
     }
 
     public function getRouteKeyName()
@@ -113,8 +119,10 @@ class Thread extends Model
 
     public function setSlugAttribute($value)
     {
-        if(static::whereSlug($slug = str_slug($value))->exists()) {
-            $slug = $this->incrementSlug($slug);
+        $slug = str_slug($value);
+
+        if (static::whereSlug($slug)->exists()) {
+            $slug = "{$slug}-" . $this->id;
         }
 
         $this->attributes['slug'] = $slug;
