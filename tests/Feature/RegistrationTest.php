@@ -32,7 +32,8 @@ class RegistrationTest extends TestCase
     /** @test */
     public function user_can_fully_confirm_their_email_addresses()
     {
-        // 用路由命名代替 url
+        Mail::fake();
+
         $this->post(route('register'),[
             'name' => 'NoNo1',
             'email' => 'NoNo1@example.com',
@@ -42,16 +43,16 @@ class RegistrationTest extends TestCase
 
         $user = User::whereName('NoNo1')->first();
 
-        // 新注册用户未认证，且拥有 confirmation_token
         $this->assertFalse($user->confirmed);
         $this->assertNotNull($user->confirmation_token);
 
-        // 用路由命名代替 url
         $this->get(route('register.confirm',['token' => $user->confirmation_token]))
             ->assertRedirect(route('threads'));
 
-        // 当新注册用户点击认证链接，用户变成已认证，且跳转到话题列表页面
-        $this->assertTrue($user->fresh()->confirmed);
+        tap($user->fresh(),function($user) {
+            $this->assertTrue($user->confirmed);
+            $this->assertNull($user->confirmation_token);
+        });
     }
 
     /** @test */
