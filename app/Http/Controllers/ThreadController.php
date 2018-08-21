@@ -111,9 +111,15 @@ class ThreadController extends Controller
      * @param  \App\Thread  $thread
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Thread $thread)
+    public function update($channelId,Thread $thread)
     {
-        //
+        if (request()->has('locked')) {
+            if(! auth()->user()->isAdmin()) {
+                return response('',403);
+            }
+
+            $thread->lock();
+        }
     }
 
     /**

@@ -76,4 +76,9 @@ class User extends Authenticatable
     {
         return $avatar ?: 'avatars/default.jpg';
     }
+
+    public function isAdmin()
+    {
+        return in_array($this->name,['ZH117']);
+    }
 }
