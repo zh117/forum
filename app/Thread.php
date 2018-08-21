@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Redis;
 
 class Thread extends Model
 {
-    use RecordsActivity,RecordsVisits;
+    use RecordsActivity;
 
     protected $guarded = []; // 意味所有属性均可更新，后期会修复此安全隐患
     protected $with = ['creator','channel'];
@@ -104,5 +104,10 @@ class Thread extends Model
         $key = $user->visitedThreadCacheKey($this);
 
         return $this->updated_at > cache($key);
+    }
+
+    public function visits()
+    {
+        return new Visits($this);
     }
 }
