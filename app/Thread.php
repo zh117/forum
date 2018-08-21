@@ -144,4 +144,9 @@ class Thread extends Model
         // 否则后缀数字为 2
         return "{$slug}-2";
     }
+
+    public function markBestReply(Reply $reply)
+    {
+        $this->update(['best_reply_id' => $reply->id]);
+    }
 }
