@@ -2,14 +2,14 @@
 
 namespace App;
 
-use App\Events\ThreadHasNewReply;
 use App\Events\ThreadReceivedNewReply;
 use App\Notifications\ThreadWasUpdated;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Redis;
 
 class Thread extends Model
 {
-    use RecordsActivity;
+    use RecordsActivity,RecordsVisits;
 
     protected $guarded = []; // 意味所有属性均可更新，后期会修复此安全隐患
     protected $with = ['creator','channel'];
