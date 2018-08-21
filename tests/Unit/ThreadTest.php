@@ -134,4 +134,12 @@ class ThreadTest extends TestCase
             $this->assertFalse($thread->hasUpdatesFor($user));
         });
     }
+
+    /** @test */
+    public function thread_has_a_path() // 修改测试命名，更具可读性
+    {
+        $thread = create('App\Thread');
+
+        $this->assertEquals("/threads/{$thread->channel->slug}/{$thread->slug}",$thread->path());
+    }
 }
