@@ -110,4 +110,30 @@ class Thread extends Model
 
         return $this->updated_at > cache($key);
     }
+
+    public function setSlugAttribute($value)
+    {
+        if(static::whereSlug($slug = str_slug($value))->exists()) {
+            $slug = $this->incrementSlug($slug);
+        }
+
+        $this->attributes['slug'] = $slug;
+    }
+
+    public function incrementSlug($slug)
+    {
+        // 取出最大 id 话题的 Slug 值
+        $max = static::whereTitle($this->title)->latest('id')->value('slug');
+
+        // 如果最后一个字符为数字
+        if(is_numeric($max[-1])) {
+            // 正则匹配出末尾的数字，然后自增 1
+            return preg_replace_callback('/(\d+)$/',function ($matches) {
+                return $matches[1]+1;
+            },$max);
+        }
+
+        // 否则后缀数字为 2
+        return "{$slug}-2";
+    }
 }
