@@ -2,12 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\CreatePostForm;
-use App\Notifications\YouWereMentioned;
+use App\Http\Requests\CreatePostRequest;
 use App\Reply;
 use App\Inspections\Spam;
 use App\Thread;
-use App\User;
 use Illuminate\Http\Request;
 
 class ReplyController extends Controller
@@ -42,28 +40,12 @@ class ReplyController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store($channelId, Thread $thread, CreatePostForm $form)
+    public function store($channelId, Thread $thread, CreatePostRequest $form)
     {
-        $reply = $thread->addReply([
+        return $thread->addReply([
             'body' => request('body'),
             'user_id' => auth()->id(),
-        ]);
-
-        // Inspect the body of the reply for the username mentions
-        preg_match_all('/\@([^\s\.]+)/',$reply->body,$matches);
-
-        $names = $matches[1];
-
-        // And then notify user
-        foreach ($names as $name){
-            $user = User::whereName($name)->first();
-
-            if($user){
-                $user->notify(new YouWereMentioned($reply));
-            }
-        }
-
-        return $reply->load('owner');
+        ])->load('owner');
     }
 
     /**
