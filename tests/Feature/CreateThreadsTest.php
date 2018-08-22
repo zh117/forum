@@ -3,12 +3,25 @@
 namespace Tests\Feature;
 
 use App\Activity;
+use App\Rules\Recaptcha;
 use App\Thread;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 class CreateThreadsTest extends TestCase
 {
     use DatabaseMigrations;
+
+    public function setUp()
+    {
+        parent::setUp();
+
+        // 默认情况下，Recaptcha 验证规则都会通过
+        app()->singleton(Recaptcha::class,function() {
+            return \Mockery::mock(Recaptcha::class,function ($m) {
+                $m->shouldReceive('passes')->andReturn(true);
+            });
+        });
+    }
 
     /** @test */
     public function guests_may_not_create_threads()
@@ -45,7 +58,8 @@ class CreateThreadsTest extends TestCase
         $this->signIn();
 
         $thread = make('App\Thread');
-        $response = $this->post(route('threads'),$thread->toArray());// 应用路由命名
+        // 添加 g-recaptcha-response 即可通过验证
+        $response = $this->post(route('threads'),$thread->toArray() + ['g-recaptcha-response' => 'token']);
 
         $this->get($response->headers->get('Location'))
             ->assertSee($thread->title)
@@ -67,6 +81,16 @@ class CreateThreadsTest extends TestCase
     }
 
     /** @test */
+    public function a_thread_requires_recaptcha_verification()
+    {
+        unset(app()[Recaptcha::class]);
+
+        // 添加 g-recaptcha-response 即可通过验证
+        $this->publishThread(['g-recaptcha-response' => 'test'])
+            ->assertSessionHasErrors('g-recaptcha-response');
+    }
+
+    /** @test */
     public function a_thread_requires_a_valid_channel()
     {
         factory('App\Channel',2)->create(); // 新建两个 Channel，id 分别为 1 跟 2
@@ -85,7 +109,8 @@ class CreateThreadsTest extends TestCase
 
         $thread = create('App\Thread',['title' => 'Something 24']);
 
-        $thread = $this->postJson(route('threads'),$thread->toArray())->json();
+        // 添加 g-recaptcha-response 即可通过验证
+        $thread = $this->postJson(route('threads'),$thread->toArray() + ['g-recaptcha-response' => 'token'])->json();
 
         $this->assertEquals("something-24-{$thread['id']}",$thread['slug']);
     }
@@ -141,7 +166,8 @@ class CreateThreadsTest extends TestCase
 
         $this->assertEquals($thread->fresh()->slug,'foo-title');
 
-        $thread = $this->postJson(route('threads'),$thread->toArray())->json();
+        // 添加 g-recaptcha-response 即可通过验证
+        $thread = $this->postJson(route('threads'),$thread->toArray() + ['g-recaptcha-response' => 'token'])->json();
 
         $this->assertEquals("foo-title-{$thread['id']}",$thread['slug']);
     }
