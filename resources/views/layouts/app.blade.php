@@ -12,6 +12,7 @@
 
     <!-- Styles -->
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/trix/0.11.4/trix.css" rel="stylesheet">
 
     <script>
         window.App = {!! json_encode([
@@ -29,6 +30,7 @@
         .mr-1 {margin-right: 1em;}
         .ml-a { margin-left: auto; }
         [v-cloak] { display: none; }
+        .ais-highlight > em { background: yellow;font-style: normal; }
     </style>
 
     @yield('header')

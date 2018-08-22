@@ -6,10 +6,11 @@ use App\Events\ThreadReceivedNewReply;
 use App\Notifications\ThreadWasUpdated;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Redis;
+use Laravel\Scout\Searchable;
 
 class Thread extends Model
 {
-    use RecordsActivity;
+    use RecordsActivity,Searchable;
 
     protected $guarded = []; // 意味所有属性均可更新，后期会修复此安全隐患
     protected $with = ['creator','channel'];
@@ -28,7 +29,8 @@ class Thread extends Model
 
         static::created(function ($thread) {
             $thread->update([
-                'slug' => $thread->title
+                'slug' => $thread->title,
+                'body' => clean($thread->body,'thread_or_reply_body')
             ]);
         });
     }
@@ -151,5 +153,10 @@ class Thread extends Model
     public function markBestReply(Reply $reply)
     {
         $this->update(['best_reply_id' => $reply->id]);
+    }
+
+    public function toSearchableArray()
+    {
+        return $this->toArray() + ['path' => $this->path()];
     }
 }

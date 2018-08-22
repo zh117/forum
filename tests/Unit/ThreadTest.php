@@ -142,4 +142,12 @@ class ThreadTest extends TestCase
 
         $this->assertEquals("/threads/{$thread->channel->slug}/{$thread->slug}",$thread->path());
     }
+
+    /** @test */
+    public function a_thread_body_is_sanitized_automatically()
+    {
+        $thread = create('App\Thread',['body' => "<script>alert('bad')</script><p>This is OK.</p>"]);
+
+        $this->assertEquals("<p>This is OK.</p>",$thread->body);
+    }
 }

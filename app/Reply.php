@@ -19,6 +19,7 @@ class Reply extends Model
 
         static::created(function ($reply){
             $reply->thread->increment('replies_count');
+            $reply->body = clean($reply->body,'thread_or_reply_body');
         });
 
         static::deleted(function ($reply){
